@@ -41,7 +41,9 @@ pipeline {
             steps {
                 echo "Fazendo deploy da aplicação (container local)..."
                 script {
-                    sh "docker run -d --rm --name meuapp_container -p 5000:5000 ${IMAGE_NAME}:${DOCKER_TAG}"
+                    def containerName = "meuapp_container_${BUILD_ID}"
+                    sh "docker run -d --rm --name ${containerName} -p 5000:5000 ${IMAGE_NAME}:${DOCKER_TAG}"
+                    echo "Container iniciado: ${containerName}"
                 }
             }
         }
