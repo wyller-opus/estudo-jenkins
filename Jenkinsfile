@@ -26,12 +26,16 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Executando testes..."
-                sh '''
-                    python3 -m pip install -r requirements.txt
-                    python3 -m unittest discover -s tests
-                '''
+                script {
+                    docker.image("${IMAGE_NAME}:${DOCKER_TAG}").inside {
+                        sh '''
+                            python3 -m unittest discover -s tests
+                        '''
+                    }
+                }
             }
         }
+
 
         stage('Deploy') {
             steps {
