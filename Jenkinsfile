@@ -35,19 +35,23 @@ pipeline {
             }
         }
 
-        stage('SCA - Trivy') {
-            steps {
-                echo "Escaneando imagem com Trivy..."
-                sh '''
-                    if ! command -v trivy >/dev/null 2>&1; then
-                        echo "Instalando Trivy..."
-                        wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.deb
-                        sudo dpkg -i trivy_0.50.1_Linux-64bit.deb || echo "Trivy fallback"
-                    fi
-                    trivy image ${IMAGE_NAME}:${DOCKER_TAG}
-                '''
-            }
-        }
+stage('SCA - Trivy') {
+    steps {
+        echo "🛡️ Escaneando imagem com Trivy..."
+        sh '''
+            if ! command -v trivy >/dev/null 2>&1; then
+                echo "📥 Instalando Trivy..."
+                apt-get update && apt-get install -y wget curl
+
+                curl -LO https://github.com/aquasecurity/trivy/releases/download/v0.50.1/trivy_0.50.1_Linux-64bit.deb
+                dpkg -i trivy_0.50.1_Linux-64bit.deb
+            fi
+
+            trivy image ${IMAGE_NAME}:${DOCKER_TAG}
+        '''
+    }
+}
+
 
         stage('Testes Automatizados') {
             steps {
