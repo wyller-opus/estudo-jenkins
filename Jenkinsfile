@@ -12,13 +12,13 @@ pipeline {
                 checkout scm
             }
         }
-
+        
         stage('SAST - Semgrep') {
             steps {
-                echo "🧪 Rodando Semgrep com instalador oficial..."
+                echo "⚙️ Instalando Semgrep via pip"
                 sh '''
-                    curl -s https://semgrep.dev/install.sh | bash
-                    ./semgrep/semgrep scan --config auto .
+                    pip install semgrep
+                    semgrep scan --config auto .
                 '''
             }
         }
