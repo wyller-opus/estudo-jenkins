@@ -9,23 +9,46 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo "Realizando checkout do código..."
                 checkout scm
             }
         }
 
-        stage('Build') {
+        stage('SAST - Semgrep') {
             steps {
-                echo "Fazendo build da imagem Docker..."
+                echo "Analisando código com Semgrep..."
+                sh '''
+                    curl -sL https://semgrep.dev/install.sh | sh
+                    ./semgrep/semgrep scan --config auto .
+                '''
+            }
+        }
+
+        stage('Build da Imagem') {
+            steps {
+                echo "Criando imagem Docker..."
                 script {
                     docker.build("${IMAGE_NAME}:${DOCKER_TAG}")
                 }
             }
         }
 
-        stage('Test') {
+        stage('SCA - Trivy') {
             steps {
-                echo "Executando testes..."
+                echo "Escaneando imagem com Trivy..."
+                sh '''
+                    if ! command -v trivy &> /dev/null; then
+                        echo "Instalando Trivy..."
+                        wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.deb
+                        sudo dpkg -i trivy_0.50.1_Linux-64bit.deb
+                    fi
+                    trivy image ${IMAGE_NAME}:${DOCKER_TAG}
+                '''
+            }
+        }
+
+        stage('Testes Automatizados') {
+            steps {
+                echo "Executando unittest no container..."
                 script {
                     docker.image("${IMAGE_NAME}:${DOCKER_TAG}").inside {
                         sh '''
@@ -36,22 +59,30 @@ pipeline {
             }
         }
 
-
-        stage('Deploy') {
+        stage('Deploy Local') {
             steps {
-                echo "Fazendo deploy da aplicação (container local)..."
+                echo "Subindo container local para testes dinâmicos..."
                 script {
                     def containerName = "meuapp_container_${BUILD_ID}"
                     sh "docker run -d --rm --name ${containerName} -p 5000:5000 ${IMAGE_NAME}:${DOCKER_TAG}"
-                    echo "Container iniciado: ${containerName}"
+                    sleep(time: 10, unit: "SECONDS") // aguarda app subir
                 }
+            }
+        }
+
+        stage('DAST - OWASP ZAP') {
+            steps {
+                echo "Escaneando app com OWASP ZAP..."
+                sh '''
+                    docker run --network host -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:5000 || true
+                '''
             }
         }
     }
 
     post {
         always {
-            echo "Pipeline finalizado"
+            echo "Pipeline finalizada!"
         }
     }
 }
