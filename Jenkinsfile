@@ -15,15 +15,17 @@ pipeline {
 
         stage('SAST - Semgrep') {
             steps {
-                echo "Analisando código com Semgrep..."
+                echo "📘 Rodando análise Semgrep"
                 sh '''
-                    curl -sSL https://github.com/returntocorp/semgrep/releases/latest/download/semgrep-linux-amd64 > semgrep
+                    curl -sSL https://github.com/returntocorp/semgrep/releases/latest/download/semgrep-linux-amd64 -o semgrep
                     chmod +x semgrep
                     ls -la
+                    ./semgrep --version
                     ./semgrep scan --config auto .
                 '''
             }
         }
+
 
         stage('Build da Imagem') {
             steps {
