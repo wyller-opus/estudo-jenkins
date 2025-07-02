@@ -19,6 +19,7 @@ pipeline {
                 sh '''
                     curl -sSL https://github.com/returntocorp/semgrep/releases/latest/download/semgrep-linux-amd64 > semgrep
                     chmod +x semgrep
+                    ls -la
                     ./semgrep scan --config auto .
                 '''
             }
