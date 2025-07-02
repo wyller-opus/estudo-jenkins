@@ -15,11 +15,14 @@ pipeline {
         
         stage('SAST - Semgrep') {
             steps {
-                echo "⚙️ Instalando Semgrep via pip"
-                sh '''
-                    pip install semgrep
-                    semgrep scan --config auto .
-                '''
+                echo "🔍 Executando Semgrep com Docker"
+                sh """
+                    docker run --rm \
+                      -v ${env.WORKSPACE}:/src \
+                      --workdir /src \
+                      returntocorp/semgrep \
+                      semgrep scan --config auto
+                """
             }
         }
 
