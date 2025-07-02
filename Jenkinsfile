@@ -17,7 +17,7 @@ pipeline {
             steps {
                 echo "Analisando código com Semgrep..."
                 sh '''
-                    curl -sL https://semgrep.dev/install.sh | sh
+                    curl -sL https://semgrep.dev/install.sh | bash
                     ./semgrep/semgrep scan --config auto .
                 '''
             }
@@ -36,7 +36,7 @@ pipeline {
             steps {
                 echo "Escaneando imagem com Trivy..."
                 sh '''
-                    if ! command -v trivy &> /dev/null; then
+                    if ! command -v trivy >/dev/null 2>&1; then
                         echo "Instalando Trivy..."
                         wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.deb
                         sudo dpkg -i trivy_0.50.1_Linux-64bit.deb
