@@ -17,8 +17,9 @@ pipeline {
             steps {
                 echo "Analisando código com Semgrep..."
                 sh '''
-                    curl -sL https://semgrep.dev/install.sh | bash
-                    ./semgrep/semgrep scan --config auto .
+                    curl -sSL https://github.com/returntocorp/semgrep/releases/latest/download/semgrep-linux-amd64 > semgrep
+                    chmod +x semgrep
+                    ./semgrep scan --config auto .
                 '''
             }
         }
