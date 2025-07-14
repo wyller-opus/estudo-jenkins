@@ -19,24 +19,20 @@ pipeline {
                 echo "Executando Semgrep com Docker"
                 withCredentials([string(credentialsId: 'SEMGREP_TOKEN', variable: 'SEMGREP_APP_TOKEN')]) {
                     sh script: '''
-                        echo "📁 Conteúdo da pasta montada em /src:"
-                        ls -la $WORKSPACE
+                        echo "📁 Verificando arquivos escaneáveis..."
+                        find $WORKSPACE -name "*.py"
 
-                        echo "📁 Verificando .git:"
-                        ls -la $WORKSPACE/.git || echo ".git não encontrado!"
-
+                        echo "📁 Executando Semgrep com Docker..."
                         docker run --rm \
                             -v $WORKSPACE:/src \
-                            -v $WORKSPACE/.git:/src/.git \
                             --workdir /src \
                             -e SEMGREP_APP_TOKEN=$SEMGREP_APP_TOKEN \
                             returntocorp/semgrep \
-                            semgrep scan --verbose --config auto /src || true
+                            semgrep scan --config auto --verbose /src || true
                     '''
                 }
             }
         }
-
 
         stage('Build da Imagem') {  
             steps {
