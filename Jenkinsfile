@@ -17,14 +17,16 @@ pipeline {
         stage('SAST - Semgrep') {
             steps {
                 echo "Executando Semgrep com Docker"
-                sh """
-                    docker run --rm \
-                    -v ${env.WORKSPACE}:/src \
-                    --workdir /src \
-                    -e SEMGREP_APP_TOKEN=${env.SEMGREP_TOKEN} \
-                    returntocorp/semgrep \
-                    semgrep scan --config auto
-                """
+                withEnv(["SEMGREP_APP_TOKEN=${SEMGREP_TOKEN}"]) {
+                    sh """
+                        docker run --rm \
+                        -v ${env.WORKSPACE}:/src \
+                        --workdir /src \
+                        -e SEMGREP_APP_TOKEN \
+                        returntocorp/semgrep \
+                        semgrep scan --config auto
+                    """
+                }
             }
         }
 
