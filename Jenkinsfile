@@ -18,14 +18,14 @@ pipeline {
             steps {
                 echo "Executando Semgrep com Docker"
                 withCredentials([string(credentialsId: 'SEMGREP_TOKEN', variable: 'SEMGREP_APP_TOKEN')]) {
-                    sh """
+                    sh script: '''
                         docker run --rm \
-                        -v ${env.WORKSPACE}:/src \
+                        -v $WORKSPACE:/src \
                         --workdir /src \
                         -e SEMGREP_APP_TOKEN=$SEMGREP_APP_TOKEN \
                         returntocorp/semgrep \
                         semgrep scan --config auto
-                    """
+                    '''
                 }
             }
         }
