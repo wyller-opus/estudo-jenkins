@@ -21,6 +21,7 @@ pipeline {
                     sh script: '''
                         docker run --rm \
                         -v $WORKSPACE:/src \
+                        -v $WORKSPACE/.git:/src/.git \  # 👈 necessário
                         --workdir /src \
                         -e SEMGREP_APP_TOKEN=$SEMGREP_APP_TOKEN \
                         returntocorp/semgrep \
