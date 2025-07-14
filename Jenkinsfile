@@ -19,10 +19,10 @@ pipeline {
                 echo "Executando Semgrep com Docker"
                 withCredentials([string(credentialsId: 'SEMGREP_TOKEN', variable: 'SEMGREP_APP_TOKEN')]) {
                     sh script: '''
-                        echo "📁 Verificando arquivos escaneáveis..."
+                        echo "Verificando arquivos escaneaveis..."
                         find $WORKSPACE -name "*.py"
 
-                        echo "📁 Executando Semgrep com Docker..."
+                        echo "Executando Semgrep com Docker..."
                         docker run --rm \
                             -v $WORKSPACE:/src \
                             --workdir /src \
