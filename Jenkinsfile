@@ -19,17 +19,24 @@ pipeline {
                 echo "Executando Semgrep com Docker"
                 withCredentials([string(credentialsId: 'SEMGREP_TOKEN', variable: 'SEMGREP_APP_TOKEN')]) {
                     sh script: '''
+                        echo "📁 Conteúdo da pasta montada em /src:"
+                        ls -la $WORKSPACE
+
+                        echo "📁 Verificando .git:"
+                        ls -la $WORKSPACE/.git || echo ".git não encontrado!"
+
                         docker run --rm \
-                        -v $WORKSPACE:/src \
-                        -v $WORKSPACE/.git:/src/.git \
-                        --workdir /src \
-                        -e SEMGREP_APP_TOKEN=$SEMGREP_APP_TOKEN \
-                        returntocorp/semgrep \
-                        semgrep scan --config auto /src || true
+                            -v $WORKSPACE:/src \
+                            -v $WORKSPACE/.git:/src/.git \
+                            --workdir /src \
+                            -e SEMGREP_APP_TOKEN=$SEMGREP_APP_TOKEN \
+                            returntocorp/semgrep \
+                            semgrep scan --verbose --config auto /src || true
                     '''
                 }
             }
         }
+
 
         stage('Build da Imagem') {  
             steps {
@@ -45,7 +52,7 @@ stage('SCA - Trivy') {
         echo "🛡️ Escaneando imagem com Trivy..."
         sh '''
             if ! command -v trivy >/dev/null 2>&1; then
-                echo "📥 Instalando Trivy..."
+                echo "Instalando Trivy..."
                 apt-get update && apt-get install -y wget curl
 
                 curl -LO https://github.com/aquasecurity/trivy/releases/download/v0.50.1/trivy_0.50.1_Linux-64bit.deb
@@ -77,7 +84,7 @@ stage('SCA - Trivy') {
                 script {
                     def containerName = "meuapp_container_${BUILD_ID}"
                     sh "docker run -d --rm --name ${containerName} -p 5000:5000 ${IMAGE_NAME}:${DOCKER_TAG}"
-                    sleep(time: 10, unit: "SECONDS") // aguarda app subir
+                    sleep(time: 10, unit: "SECONDS") 
                 }
             }
         }
