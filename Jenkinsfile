@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "meuapp"
-        DOCKER_TAG = "latest"
+        IMAGE_NAME    = "meuapp"
+        DOCKER_TAG    = "latest"
+        SEMGREP_TOKEN = credentials('SEMGREP_TOKEN')
     }
 
     stages {
@@ -20,13 +21,14 @@ pipeline {
                     docker run --rm \
                     -v ${env.WORKSPACE}:/src \
                     --workdir /src \
+                    -e SEMGREP_APP_TOKEN=${env.SEMGREP_TOKEN} \
                     returntocorp/semgrep \
-                    semgrep scan --config auto || true
+                    semgrep scan --config auto
                 """
             }
         }
 
-        stage('Build da Imagem') {
+        stage('Build da Imagem') {  
             steps {
                 echo "Criando imagem Docker..."
                 script {
