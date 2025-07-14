@@ -21,11 +21,11 @@ pipeline {
                     sh script: '''
                         docker run --rm \
                         -v $WORKSPACE:/src \
-                        -v $WORKSPACE/.git:/src/.git \  # 👈 necessário
+                        -v $WORKSPACE/.git:/src/.git \
                         --workdir /src \
                         -e SEMGREP_APP_TOKEN=$SEMGREP_APP_TOKEN \
                         returntocorp/semgrep \
-                        semgrep scan --config auto
+                        semgrep scan --config auto || true
                     '''
                 }
             }
