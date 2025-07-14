@@ -25,7 +25,7 @@ pipeline {
                         --workdir /src \
                         -e SEMGREP_APP_TOKEN=$SEMGREP_APP_TOKEN \
                         returntocorp/semgrep \
-                        semgrep scan --config auto /app || true
+                        semgrep scan --config auto /src || true
                     '''
                 }
             }
